@@ -17,10 +17,14 @@ def is_pangrammatic_lipogram(alphabet: str, fragment: str, lipogram_letter: str)
     """
 
     # Lowercase the fragment.
-    fragment = fragment.lower()  
+    fragment = fragment.lower()
 
     # Remove non-alphabetic chars from the fragment.
     fragment = ''.join(char for char in fragment if 'a' <= char <= 'z')
+
+    for letter in lipogram_letter:
+        if letter not in alphabet:
+            alphabet += letter
 
     if (set(alphabet) - set(fragment)) == set(lipogram_letter):
         return True
@@ -62,13 +66,18 @@ def get_lipogram_letters(lipogram_letter: str, belle_absente_letters: str) -> Li
             lipogram_letters.append(letter)
     return lipogram_letters
 
-def print_results(results_map: Dict[str, Dict[str, List[str]]]) -> None:
-    print(f'Done searching for pangrammatic lipograms. Found Belle Absentes in the following files:')
-    print(results_map.keys())
+def print_results(results_map: Dict[str, Dict[str, List[str]]], lipogram_letters: str) -> None:
+    poetic_form = 'Belle Absentes' if len(lipogram_letters) > 1 else 'lipograms'
+    print(f'Done searching for {poetic_form}.')
+    if results_map.keys():
+        print(f'Found {poetic_form} in the following files:')
+        print(results_map.keys())
+        print(f'\nPrinting {poetic_form} for each file...')
+    else:
+        print(f'Could not find any {poetic_form} for that letter combination. Please try again with different or fewer letters.')
 
-    print('\nPrinting Belle Absentes for each file...')
     for file in results_map.keys():
-        print(f'\nBelle Absentes for file: {file}')
+        print(f'\n{poetic_form} for file: {file}')
         results_for_file = results_map[file]
         for letter in lipogram_letters:
             print(f'\nFound {len(results_for_file[letter])} pangrammatic lipograms for letter {letter}:')
@@ -104,7 +113,7 @@ if __name__ == "__main__":
 
     files_to_search: List[str] = get_files_to_search(file=args.file, directory=args.directory)
 
-    print('Searching for pangrammatic lipograms...')
+    print('Searching files...')
 
     # Search every sentence in every file to build a list of pangrammatic lipograms for each file.
     for file in files_to_search:
@@ -131,4 +140,4 @@ if __name__ == "__main__":
         if has_belle_absente:
             filtered_results_map[file] = results_map[file]
 
-    print_results(results_map=filtered_results_map)
+    print_results(results_map=filtered_results_map, lipogram_letters=lipogram_letters)
